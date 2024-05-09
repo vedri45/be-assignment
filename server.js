@@ -1,8 +1,9 @@
-const express = require('express')
+const express = require('express');
 require('dotenv').config();
 const http = require('http');
 
-const app = express()
+const app = express();
+const router = require('./route');
 const { auth } = require('express-openid-connect');
 
 const config = {
@@ -21,11 +22,7 @@ if (!config.baseURL && !process.env.BASE_URL && process.env.PORT && process.env.
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
-
-// req.isAuthenticated is provided from the auth router
-app.get('/', (req, res) => {
-    res.send(req.oidc.isAuthenticated() ? 'Logged in' : 'Logged out');
-});
+app.use('/', router); 
 
 http.createServer(app)
     .listen(port, () => {

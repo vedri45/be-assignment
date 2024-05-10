@@ -1,0 +1,255 @@
+swagger: "1.0"
+info:
+  title: "Transaction API"
+  version: "1.0.0"
+paths:
+  /:
+    get:
+      summary: "Check if the user is authenticated"
+      responses:
+        200:
+          description: "Logged in or Logged out"
+
+  /users:
+    get:
+      summary: "Get a list of users"
+      responses:
+        200:
+          description: "A list of users"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "string"
+                    name:
+                      type: "string"
+
+  /payment-accounts:
+    get:
+      summary: "Get a list of payment accounts"
+      responses:
+        200:
+          description: "A list of payment accounts"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                    userId:
+                      type: "string"
+                    type:
+                      type: "string"
+                    balance:
+                      type: "number"
+                    currency:
+                      type: "string"
+
+    post:
+      summary: "Create a new payment account"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                userId:
+                  type: "integer"
+                type:
+                  type: "string"
+                balance:
+                  type: "number"
+                currency:
+                  type: "string"
+      responses:
+        201:
+          description: "Created a new payment account"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  id:
+                    type: "integer"
+                  userId:
+                    type: "string"
+                  balance:
+                    type: "number"
+                  currency:
+                    type: "string"
+                  type:
+                    type: "string"
+
+  /payment-accounts/{accountId}/history:
+    get:
+      summary: "Get the history of a specific payment account"
+      parameters:
+        - name: "accountId"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "Payment account history"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  type: "object"
+                  properties:
+                    id:
+                      type: "integer"
+                    paymentAccountId:
+                      type: "string"
+                    amount:
+                      type: "number"
+                    currency:
+                      type: "string"
+                    transactionType:
+                      type: "string"
+                    timestamp:
+                      type: "number"
+
+  /send:
+    post:
+      summary: "Send a transaction"
+      description: "Send a financial transaction from a payment account, reducing its balance upon success."
+      consumes:
+        - "application/json"
+      produces:
+        - "application/json"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: "object"
+              properties:
+                paymentAccountId:
+                  type: "integer"
+                  description: "ID of the payment account from which the transaction is sent"
+                amount:
+                  type: "number"
+                  format: "double"
+                  description: "The amount to send"
+                currency:
+                  type: "string"
+                  description: "Currency of the transaction"
+      responses:
+        201:
+          description: "Transaction successful"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  message:
+                    type: "string"
+                    example: "Transaction successful"
+        400:
+          description: "Invalid request or insufficient balance"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Invalid request or insufficient balance"
+        404:
+          description: "Payment account not found"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Payment account not found"
+        500:
+          description: "Server error"
+          content:
+            application/json:
+              schema:
+                type: "object"
+                properties:
+                  error:
+                    type: "string"
+                    example: "Internal server error"
+
+  /withdraw:
+    post:
+      summary: Withdraw a transaction
+      description: Withdraws a specified amount from a payment account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - paymentAccountId
+                - amount
+              properties:
+                paymentAccountId:
+                  type: integer
+                  description: ID of the payment account from which to withdraw.
+                amount:
+                  type: number
+                  description: Amount to withdraw.
+                  minimum: 0.01
+                currency:
+                  type: string
+                  description: Currency of the withdrawal.
+                  example: "USD"
+      responses:
+        201:
+          description: Withdrawal successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Withdraw successful"
+        400:
+          description: Invalid request (missing or invalid data)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid request"
+        404:
+          description: Payment account not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Payment account not found"
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "An error occurred"

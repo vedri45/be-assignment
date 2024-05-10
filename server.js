@@ -2,6 +2,8 @@ const express = require('express');
 require('dotenv').config();
 
 const app = express();
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./swagger/swaggerConfig');
 const router = require('./src/route');
 const { auth } = require('express-openid-connect');
 
@@ -26,6 +28,7 @@ if (!config.baseURL && !process.env.BASE_URL && process.env.PORT && process.env.
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
 app.use(express.json());
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 app.use('/', router);
 app.listen(port, () => {
     console.log(`Listening on ${config.baseURL}`);

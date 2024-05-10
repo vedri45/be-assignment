@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const createPaymentAccount = require('./functions');
+const { createPaymentAccount, getPaymentAccounts, createPaymentHistory, updatePaymentAccountBalance  } = require('./functions');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { requiresAuth } = require('express-openid-connect');
@@ -19,11 +19,9 @@ router.get('/users', async (req, res) => {
     res.json(users)
 })
 
-router.get('/payment-accounts', async (req, res) => {
-    const userId = req.oidc.user.sid;  // Assuming user ID obtained from Auth0
-
+router.get('/payment-accounts/', async (req, res) => {
     try {
-        const paymentAccounts = await prisma.paymentAccount.findMany();
+        const paymentAccounts = await getPaymentAccounts();
         res.json(paymentAccounts);
     } catch (error) {
         console.error(error);
@@ -31,10 +29,10 @@ router.get('/payment-accounts', async (req, res) => {
     }
 });
 
-router.post('/payment-accounts', async (req, res) => {
-    const { userId, type } = req.body;  // Assuming data comes from request body
+router.post('/payment-accounts/', async (req, res) => {
+    const { userId, type, balance } = req.body;
     try {
-        const paymentAccount = await createPaymentAccount(userId, type);
+        const paymentAccount = await createPaymentAccount(userId, type, balance);
         res.json(paymentAccount);
     } catch (error) {
         console.error(error);
@@ -43,7 +41,7 @@ router.post('/payment-accounts', async (req, res) => {
 });
 
 router.get('/payment-accounts/:accountId/history', async (req, res) => {
-    const accountId = req.params.accountId;
+    const accountId = parseInt(req.params.accountId);
 
     try {
         const history = await prisma.paymentHistory.findMany({
@@ -57,25 +55,25 @@ router.get('/payment-accounts/:accountId/history', async (req, res) => {
 });
 
 router.post('/payment-accounts/:accountId/history', async (req, res) => {
-    const accountId = req.params.accountId;
+    const accountId = parseInt(req.params.accountId);
     const { amount, transactionType } = req.body;
-  
+
     try {
-      // Check if account exists
-      const account = await prisma.paymentAccounts.findUnique({
-        where: { id: accountId },
-      });
-  
-      if (!account) {
-        return res.status(404).json({ message: 'Payment account not found' });
-      }
-  
-      const paymentHistory = await createPaymentHistory(accountId, amount, transactionType);
-      res.json(paymentHistory);
+        // Check if account exists
+        const account = await prisma.paymentAccount.findUnique({
+            where: { id: accountId },
+        });
+
+        if (!account) {
+            return res.status(404).json({ message: 'Payment account not found' });
+        }
+
+        const paymentHistory = await createPaymentHistory(accountId, amount, transactionType);
+        res.json(paymentHistory);
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: 'Error creating payment history' });
+        console.error(error);
+        res.status(500).json({ message: 'Error creating payment history' });
     }
-  });
+});
 
 module.exports = router;

@@ -22,6 +22,7 @@ if (!config.baseURL && !process.env.BASE_URL && process.env.PORT && process.env.
 
 // auth router attaches /login, /logout, and /callback routes to the baseURL
 app.use(auth(config));
+app.use(express.json());
 app.use('/', router); 
 
 http.createServer(app)

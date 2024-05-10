@@ -25,6 +25,7 @@ model PaymentAccount {
   user           User             @relation(fields: [userId], references: [id])
   type           String
   balance        Decimal
+  currency       String 
   paymentHistory PaymentHistory[]
 }
 
@@ -33,6 +34,7 @@ model PaymentHistory {
   paymentAccountId Int
   paymentAccount   PaymentAccount @relation(fields: [paymentAccountId], references: [id])
   amount           Decimal
+  currency         String
   transactionType  String
   timestamp        DateTime       @default(now())
 }

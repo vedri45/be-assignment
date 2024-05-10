@@ -12,10 +12,12 @@ async function seed() {
           {
             type: 'credit',
             balance: 1000.00,
+            currency: 'USD',
           },
           {
             type: 'debit',
             balance: 200.00,
+            currency: 'USD',
           },
         ],
       },
@@ -28,7 +30,8 @@ async function seed() {
     data: {
       paymentAccountId: data[0].id,
       amount: 200.00,
-      transactionType: 'deposit',
+      currency: 'USD',
+      transactionType: 'send',
     },
   });
 
@@ -36,7 +39,8 @@ async function seed() {
     data: {
       paymentAccountId: data[1].id,
       amount: 100.00,
-      transactionType: 'transfer',
+      currency: 'USD',
+      transactionType: 'withdraw',
     },
   });
 

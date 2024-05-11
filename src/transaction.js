@@ -79,6 +79,10 @@ async function withdrawTransaction(req, res, next) {
             return res.status(404).json({ error: 'Payment account not found' });
         }
 
+        if (account.balance < amount) {
+            return res.status(400).json({ error: 'Insufficient balance' });
+        }
+
         account.balance -= amount;
 
         const newTransaction = {

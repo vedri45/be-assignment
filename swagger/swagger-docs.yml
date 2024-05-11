@@ -232,7 +232,7 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: "Invalid request"
+                    example: "Invalid request or insufficient balance"
         404:
           description: Payment account not found
           content:
